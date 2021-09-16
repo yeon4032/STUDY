@@ -1,0 +1,203 @@
+-- DML_work.sql
+
+/*
+ INSERT/UPDATE/DELETE : commit 대상 -> 데이터구조 변화
+ SELECT : commit 대상 아님 
+ - 기본 query 이용 
+ - subquery 이용 
+*/
+
+
+-- 실습 table 생성 
+DROP TABLE dept01 purge; -- 제거 
+
+CREATE TABLE DEPT01(
+DEPTNO NUMBER(4),
+DNAME VARCHAR2(30),
+LOC VARCHAR2(20)
+);
+
+
+
+-- 1. 레코드 추가(append)
+
+-- 1) 기본 query 이용
+INSERT INTO DEPT01(DEPTNO, DNAME, LOC)
+VALUES(10, 'ACCOUNTING', 'NEW YORK');
+
+-- 모든 칼럼에 자료 입력 : 칼럼명 생략 
+INSERT INTO DEPT01
+VALUES (20, 'RESEARCH', 'DALLAS');  -- 칼럼명 생략 
+
+
+-- <문제1> EMP 테이블의 4개 칼럼의 구조를 이용하여 SAM01 테이블을 생성하시오.
+CREATE TABLE SAM01
+AS
+SELECT empno, ename, job, sal FROM EMP 
+WHERE 1 = 0;
+
+-- <문제2> SAM01 테이블에 다음과 같은 데이터를 추가하시오.
+INSERT INTO SAM01 VALUES(1000, 'APPLE', 'POLICE', 10000);
+INSERT INTO SAM01 VALUES(1001, 'BANANA', 'NURSE', 15000);
+INSERT INTO SAM01 VALUES(1002, 'ORANGE', 'DOCTOR', 25000);
+
+
+SELECT * FROM DEPT01;
+
+-- 암시적 NULL 입력 
+INSERT INTO DEPT01(DEPTNO, DNAME)
+VALUES (30, 'SALES'); -- LOC 칼럼 생략 
+
+-- 명시적 NULL 입력 
+INSERT INTO DEPT01
+VALUES (40, 'OPERATIONS', NULL);  -- NULL or ''
+
+INSERT INTO DEPT01
+VALUES (50, '', 'CHICAGO'); 
+
+
+-- <문제3> NULL 입력 
+INSERT INTO SAM01 VALUES(1030, 'VERY', '', 25000);
+INSERT INTO SAM01 VALUES(1040, 'CAT', NULL, 2000);
+
+SELECT * FROM SAM01;
+
+-- 2) subquery 이용
+DROP TABLE DEPT02 purge;
+
+CREATE TABLE DEPT02
+AS
+SELECT * FROM DEPT WHERE 1=0;
+
+INSERT INTO DEPT02
+SELECT * FROM DEPT;  -- 주의 : AS 없음 
+
+-- <문제4> SAM01 테이블에 레코드 추가 
+INSERT INTO SAM01
+SELECT empno, ename, job, sal FROM emp
+WHERE deptno = 10;
+
+
+-- 2. 여러 테이블 레코드 추가 
+
+-- 1) 테이블 생성 
+CREATE TABLE EMP_HIR
+AS
+SELECT empno, ename, hiredate FROM emp
+WHERE 1 = 0;
+
+
+CREATE TABLE EMP_MGR
+AS
+SELECT empno, ename, mgr FROM emp
+WHERE 1 = 0;
+
+-- 2) 여러 테이블 레코드 추가 
+INSERT ALL
+INTO EMP_HIR VALUES(EMPNO, ENAME, HIREDATE)
+INTO EMP_MGR VALUES(EMPNO, ENAME, MGR)
+SELECT EMPNO, ENAME, HIREDATE, MGR
+FROM EMP
+WHERE DEPTNO=20;
+
+-- 3. UPDATE
+CREATE TABLE EMP01
+AS
+SELECT * FROM EMP;
+
+-- WHERE절 없는 경우 : 전체 레코드 수정 
+UPDATE EMP01
+SET DEPTNO=30;
+
+SELECT * FROM EMP01;
+
+UPDATE EMP01
+SET SAL = SAL * 1.1;
+
+UPDATE EMP01
+SET HIREDATE = SYSDATE; 
+
+-- WHERE절 있는 경우
+UPDATE EMP01
+SET DEPTNO=20
+WHERE JOB='SALESMAN';
+
+UPDATE EMP01
+SET SAL = SAL * 1.1
+WHERE SAL >= 3000;
+
+-- <문제5> SAM01 테이블에 저장된 사원 중 급여가 10000 이상인 사원들의 급여만 5000원씩 삭감하시오.
+UPDATE SAM01 SET SAL = SAL - 5000 
+WHERE SAL >= 10000;
+
+SELECT * FROM SAM01;
+
+-- 2개 이상 칼럼 수정 
+UPDATE EMP01
+SET DEPTNO=20, JOB='MANAGER'
+WHERE ENAME='SCOTT'; 
+
+SELECT * FROM EMP01;
+
+-- 서브쿼리 이용 레코드 수정 : 10번 지역 -> 20번 지역 
+UPDATE DEPT01
+SET LOC=(SELECT LOC FROM DEPT01 WHERE DEPTNO=10)
+WHERE DEPTNO=20;
+
+SELECT * FROM DEPT01;
+
+-- <문제6>
+
+-- <문제7>
+
+-- 2개 이상 칼럼 수정 
+UPDATE DEPT01
+SET (DNAME, LOC)=(SELECT DNAME, LOC FROM DEPT01 WHERE DEPTNO=10)
+WHERE DEPTNO=50;
+
+SELECT * FROM DEPT01;
+
+-- <문제8> 서브 쿼리문을 사용하여 SAM02 테이블의 모든 사원의 급여와 입사
+-- 일을 이름이 KING 인 사원의 급여와 입사일로 변경하시오.
+
+SELECT * FROM SAM02;
+
+-- 테이블 생성 
+CREATE TABLE SAM02
+AS 
+SELECT * FROM EMP;
+
+SELECT * FROM SAM02 WHERE ename = 'KING';
+
+UPDATE SAM02 SET (SAL, HIREDATE)
+ = (SELECT SAL, HIREDATE FROM SAM02 WHERE ename = 'KING');
+ 
+-- WHERE절 없음 : 전체 레코드 반영 
+SELECT * FROM SAM02;
+
+
+-- 4. DELETE
+DELETE FROM DEPT01
+WHERE DEPTNO=30;
+
+SELECT * FROM DEPT01;
+
+DELETE FROM DEPT01; -- 주의 : 전체 레코드 삭제 
+
+--<문제9> SAM01 테이블에서 직책이 정해지지 않은 사원을 삭제하시오.
+SELECT * FROM SAM01;
+
+DELETE FROM SAM01 WHERE job IS NULL;
+
+-- 서브쿼리 이용 : 레코드 삭제 
+DELETE FROM EMP01
+WHERE DEPTNO=(SELECT DEPTNO FROM DEPT WHERE DNAME='SALES'); -- 30
+
+SELECT * FROM EMP01;
+
+
+-- DB 반영 
+commit;
+
+ROLLBACK -- DML(INSERT, UPDATE, DELETE) 명령 이전으로 복원 
+

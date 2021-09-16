@@ -1,0 +1,27 @@
+# chap13_Logistic Regression
+
+
+# 1. 로짓 변환 : y값을 0 ~ 1로 조정하는 과정 
+
+# 단계1 : 오즈비(Odds ratio) : [실패(0)에 대한] 성공(1) 비율(0:fail, 1:success)
+# ex) Odds of ten to one -> 10대 1의 배당률(성공 비율 1/10) 
+
+p = 0.5 # success
+1 - p # fail
+odds_ratio = p / (1-p) 
+
+
+# 단계2 : 로짓변환 : 오즈비에 log 적용 
+p = 0.5 # 성공 50%
+odds_ratio = p / (1-p) 
+logit1 = log(odds_ratio) 
+
+p = 1 # 성공 100% 
+odds_ratio = p / (1-p)  
+logit2 = log(odds_ratio)
+
+
+# 단계3 : 시그모이드 함수 
+# sigmoid_function = (1 / (1 + exp(-로짓값)))
+1 / (1 + exp(-(logit1))) # logit=0 -> 0.5
+1 / (1 + exp(-(logit2))) # logit=Inf -> 1

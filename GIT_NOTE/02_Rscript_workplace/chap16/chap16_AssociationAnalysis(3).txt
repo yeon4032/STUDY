@@ -1,0 +1,63 @@
+﻿##############################################
+# 3. 연관규칙 시각화(Adult 데이터 셋 이용)
+##############################################
+
+data(Adult) # arules에서 제공되는 내장 데이터 로딩
+str(Adult) # Formal class 'transactions' , 48842(행)
+Adult
+
+attributes(Adult)# 트랜잭션의 변수와 범주 보기
+################ Adult 데이터 셋 #################
+# 32,000개의 관찰치와 15개의 변수로 구성되어 있음
+# 종속변수에 의해서 년간 개인 수입이 5만달러 이상 인지를
+# 예측하는 데이터 셋으로 transactions 데이터로 읽어온
+# 경우 48,842행과 115 항목으로 구성된다.
+##################################################
+# 15개 변수 목록 :
+# y변수 : > 50K, <= 50K.
+# 나이 : 연속.
+# 직업유형(workclass) : 개인, Self-emp-not-inc, Self-emp-inc, Federal-gov, Local-gov, State-gov, 무급, 무근로.
+# fnlwgt : 교육수준(연속)
+# 교육 : 학사, Some-college, 11th, HS-grad, Prof-school, Assoc-acdm, Assoc-voc, 9th, 7th-8th, 12th, Masters, 1st-4th, 10th, Doctorate, 5th-6th, Preschool.
+# 교육수 : 연속.
+# 결혼상태 : 기혼 -civ- 배우자, 이혼, 미혼, 별거, 사별, 기혼-배우자 부재, 기혼 -AF- 배우자.
+# 직업 : 기술 지원, 공예 수리, 기타 서비스, 판매, 경영진, 전문직, 핸들러 청소부, 기계 작업 검사, 임시 사무원, 농업 낚시, 운송 이동, 개인 주택- serv, 보호 -serv, Armed-Forces.
+# 관계 : 아내, 자녀, 남편, 비 가족, 기타 친척, 미혼.
+# 인종(race) : 백인, 아시아-태평양-섬, 아메리카-인도-에스키모, 기타, 흑인.
+# 성별 : 여성, 남성.
+# 자본이득(capital-gain) : 연속.
+# 자본손실(capital-loss) : 연속.
+# 주당시간(hours-per-week) : 연속.
+# 출신국가(native-country) : 미국, 캄보디아, 영국, 푸에르토 리코, 캐나다, 독일 등 
+
+# 요약 통계량
+summary(Adult)
+
+
+#---------------------------------------------------------------
+# 신뢰도 80%, 지지도 10%이 적용된 연관규칙 6137 발견   
+#----------------------------------------------------------------
+ar1 <- apriori(Adult, parameter = list(supp=0.1, conf=0.8))
+ar2 <- apriori(Adult, parameter = list(supp=0.2)) # 지도도 높임
+ar3 <- apriori(Adult, parameter = list(supp=0.2, conf=0.95)) # 신뢰도 높임
+ar4 <- apriori(Adult, parameter = list(supp=0.3, conf=0.95)) # 신뢰도 높임
+ar5 <- apriori(Adult, parameter = list(supp=0.35, conf=0.95)) # 신뢰도 높임
+ar6 <- apriori(Adult, parameter = list(supp=0.4, conf=0.95)) # 신뢰도 높임
+
+# 결과보기
+inspect(head(ar6)) # 상위 6개 규칙 제공 -> inspect() 적용
+
+# confidence(신뢰도) 기준 내림차순 정렬 상위 6개 출력
+inspect(head(sort(ar6, decreasing=T, by="confidence")))
+
+# lift(향상도) 기준 내림차순 정렬 상위 6개 출력
+inspect(head(sort(ar6, by="lift"))) 
+
+
+## 연관성 규칙에 대한 데이터 시각화를 위한 패키지
+#install.packages("arulesViz") 
+library(arulesViz) # rules값 대상 그래프를 그리는 패키지
+
+plot(ar4) # 지지도(support), 신뢰도(conf) , 향상도(lift)에 대한 산포도
+plot(ar5, method="graph") #  연관규칙 네트워크 그래프
+# 각 연관규칙 별로 연관성 있는 항목(item) 끼리 묶여서 네트워크 형태로 시각화

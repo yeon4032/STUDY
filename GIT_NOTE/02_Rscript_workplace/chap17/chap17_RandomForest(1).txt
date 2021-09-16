@@ -1,0 +1,30 @@
+﻿##################################################
+#randomForest
+##################################################
+# 결정트리(Decision tree)에서 파생된 모델 
+# 랜덤포레스트는 앙상블 학습기법을 사용한 모델
+# 앙상블 학습 : 새로운 데이터에 대해서 여러 개의 Tree로 학습한 다음, 
+# 학습 결과들을 종합해서 예측하는 모델(PPT 참고)
+# DT보다 성능 향상, 과적합 문제를 해결
+
+
+install.packages('randomForest')
+library(randomForest) # randomForest()함수 제공 
+
+data(iris)
+
+# 1. 랜덤 포레스트 모델 생성 
+# 형식) randomForest(y ~ x, data, ntree=500, mtry)
+model = randomForest(Species~., data=iris, 
+                     ntree=500, mtry=2,  na.action=na.omit)  
+model
+
+# 2. model 정보 확인 
+names(model) # 19컬럼 제공 
+
+# 3. 중요 변수 생성  
+model2 = randomForest(Species ~ ., data=iris, 
+                      ntree=500, mtry=2, 
+                      importance = T,
+                      na.action=na.omit )
+model2 

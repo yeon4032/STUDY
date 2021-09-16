@@ -1,0 +1,17 @@
+2. 관리자/사용자 암호 분실 시
+
+1) Run SQL Command Line 실행 
+
+2) sql> conn system/password -- 관리자 로그인  
+
+-> sys 계정 암호 변경    
+3) sql> alter user sys identified by 암호
+
+-> system 계정 암호 변경
+4) sql> alter user system identified by 암호
+
+-> 일반사용자 암호 변경
+5) sql> alter user 계정 identified by 암호
+
+
+

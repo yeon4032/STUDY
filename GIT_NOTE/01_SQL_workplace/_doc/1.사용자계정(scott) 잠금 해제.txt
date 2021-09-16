@@ -1,0 +1,13 @@
+1. scott(사용자) 계정 잠금 해제
+
+1) Run SQL Command Line 실행 
+
+2) sql> conn system/password -- 관리자 로그인 
+
+3) sql> select * from all_users; -- 전체 사용자 보기 
+
+4) sql> alter user scott account unlock;
+  
+5) sql> conn scott/tiger;
+
+6) sql> show user;

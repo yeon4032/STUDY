@@ -1,0 +1,51 @@
+﻿# 로지스틱 회귀분석(Logistic Regression) 모델 
+
+# 단계1. 데이터 가져오기 
+setwd('C:/itwill/2_Rwork/data')
+weather = read.csv("weather.csv") 
+dim(weather)  # 366  15
+head(weather)
+str(weather)
+
+# chr 칼럼, Date, RainToday 칼럼 제거 
+weather_df <- weather[, c(-1, -6, -8, -14)]
+str(weather_df)
+
+# RainTomorrow 칼럼 -> 로지스틱 회귀분석 결과(0,1)에 맞게 더미변수 생성      
+weather_df$RainTomorrow[weather_df$RainTomorrow=='Yes'] <- 1
+weather_df$RainTomorrow[weather_df$RainTomorrow=='No'] <- 0
+weather_df$RainTomorrow <- as.numeric(weather_df$RainTomorrow)
+head(weather_df)
+
+#  단계2.  데이터 셈플링
+idx <- sample(nrow(weather_df), nrow(weather_df)*0.7)
+train <- weather_df[idx, ]
+test <- weather_df[-idx, ]
+
+
+#  단계3.  로지스틱  회귀모델 생성 : 학습데이터 
+weater_model <- glm(RainTomorrow ~ ., data = train, family = 'binomial')
+weater_model 
+summary(weater_model) 
+
+
+# 단계4. 로지스틱  회귀모델 예측치 생성 : 검정데이터 
+# newdata=test : 새로운 데이터 셋, type="response" : 0~1 확률값으로 예측 
+pred <- predict(weater_model, newdata=test, type="response")  
+pred 
+summary(pred)
+str(pred)
+
+
+
+### ROC Curve를 이용한 모형평가(분류정확도)  ####
+# Receiver Operating Characteristic
+
+install.packages("ROCR")
+library(ROCR)
+
+# ROCR 패키지 제공 함수 : prediction() -> performance
+pr <- prediction(pred, test$RainTomorrow)
+prf <- performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf)
+

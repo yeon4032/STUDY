@@ -1,0 +1,13 @@
+3. 사용자 계정 삭제 
+
+1) Run SQL Command Line 실행 
+
+2)  sql> conn system/password -- 관리자 로그인 
+
+-> 사용자 계정 삭제    
+3) sql> drop user 계정 cascade;   -- 주의 : developer, Command line 등 모든 연결 종료
+
+4) quit
+
+
+

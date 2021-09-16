@@ -1,0 +1,28 @@
+﻿######################################
+# 4. 식료품점 데이터셋  
+######################################
+
+library(arules)
+
+# transactions 데이터 가져오기
+data("Groceries")  # 식료품점 데이터 로딩
+str(Groceries) # Formal class 'transactions' [package "arules"] with 4 slots
+Groceries
+
+rules <- apriori(Groceries, parameter=list(supp=0.001, conf=0.8))
+
+inspect(rules) 
+# 규칙을 구성하는 왼쪽(LHS) -> 오른쪽(RHS)의 item 빈도수 보기  
+plot(rules, method="grouped")
+
+# 최대 길이 3이내로 규칙 생성
+rules <- apriori(Groceries, parameter=list(supp=0.001, conf=0.80, maxlen=3))
+inspect(rules) # 29개 규칙
+
+# confidence(신뢰도) 기준 내림차순으로 규칙 정렬
+rules <- sort(rules, decreasing=T, by="confidence")
+inspect(rules) 
+
+library(arulesViz) # rules값 대상 그래프를 그리는 패키지
+plot(rules, method="graph", control=list(type="items"))
+
